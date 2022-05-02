@@ -23,7 +23,7 @@ mpl.rcParams['axes.spines.top'] = False
 def exp_design(po, pos, name):
     ax = fig.add_subplot(gs[pos[0]:pos[1], pos[2]:pos[3]])
     set_axis(ax, 0, po[1], letter= po[0])
-    img = py.imread(loadir2+name)
+    img = py.imread(name)
     ax.imshow(img, aspect='auto', extent=[0,1,0,1])
     # py.xlim(0.1,0.9)
     ax.spines['left'].set_visible(False)
@@ -65,35 +65,31 @@ def ex_lfp2(po, pos, name1,name2, channel=255,div=2, Fs=5000):
     
     ax.set_xlabel('Time (ms)'),ax.set_ylabel('Potential (mV)')
     ax.spines['right'].set_visible(False)
-    py.legend(ncol=1,loc=2, frameon = False, fontsize = 13)
+    py.legend(ncol=1,loc=4, frameon = False, fontsize = 16)
 
-def lfp_profile(po, pos, name, title, tp=75, vmax=.5,channel=255):
-    global pots,ele_pos,inds
+def lfp_profile(po, pos, name, title, vmax=200):
     ax = fig.add_subplot(gs[pos[0]:pos[1], pos[2]:pos[3]])
     set_axis(ax, 0, po[1], letter= po[0])
-    pots = scipy.io.loadmat(name)['pots']
-    pots = pots.mean(axis=1)
-    py.title(title)  
-    py.imshow(pots, extent=[-5,25,1,384],aspect='auto', vmax=vmax, vmin=-vmax, 
-              cmap='PRGn', origin='lower')
-    cbar = py.colorbar(aspect=50, pad=0)
-    cbar.ax.tick_params(length=0) 
-    py.axhline(channel, color='grey', ls='--')
-    py.xlim(-5,25) 
-    py.ylabel('Electrode contact')
-    x,y = np.meshgrid(np.linspace(-5,25,pots.shape[1]),
-                      np.linspace(1,384,pots.shape[0]))
-    if po[0]=='A':
-        cont_lfp1 = abs(pots)>vmax
-        pots[:,:80]=0
-        py.contour(x,y,cont_lfp1*abs(pots), levels=np.linspace(-2,5,20), 
-                   cmap="Greys_r", linestyles='dashed', linewidth=.2)
-    py.yticks([])
-    # if po[0]=='B':
+    lfp = scipy.io.loadmat(name)['pots']
+    ele_pos = scipy.io.loadmat('./mats/sov19.mat')['ele_pos'].T
+    lfp = lfp.mean(axis=1)
+    py.title(title)
+    time= np.linspace(-5,25,lfp.shape[1])
+    for i in range(lfp.shape[0]-1,0,-1):
+        py.plot(time, lfp[i]/2+ele_pos[i,2]-11, color='black', linewidth=.5)
+        if i==channel:
+            py.plot(time, lfp[i]/2+ele_pos[i,2]-11, color='black', linewidth=3)   
+    py.axvline(0, ls='--', color='grey')
+    py.ylabel('Electrode number')
+    py.ylim(-7.5,.5)
 
-    py.xlabel('Time (ms)')
+    py.xlabel('Time (ms)'),py.ylabel('Depth (mm)')
     ax.spines['right'].set_visible(False)
-    # py.axvline(0, ls='--', lw = 2, color='grey')
+    py.axvline(0, ls='--', lw = 2, color='grey')
+    if po[0]=='B':
+        py.yticks([]),py.ylabel('')
+        py.plot([25.8,25.8],[0,-0.5], 'k',lw=3)
+        py.text(26.4,-0.2, '1 mV', size=15)
     
 def comparison(po, pos, name1,name2, channel=255,div=2, Fs=5000):
     global recon_th
@@ -124,7 +120,7 @@ def comparison(po, pos, name1,name2, channel=255,div=2, Fs=5000):
     py.plot(loc_time, np.log10(p_values[0]), color= 'k', label='control pval.')
     py.plot(loc_time, np.log10(p_values[1]), color= 'r', label='ligno. pval.')
     py.plot(loc_time, np.log10(p_values[2]), color= 'grey', label='recon. ligno vs recon. ctrl')
-    py.ylabel('p-value'),py.legend()
+    py.ylabel('log(p-value)'),py.legend()
     py.axhline(np.log10(0.05), ls='--',color='grey')
     ax.spines['right'].set_visible(False)
         
@@ -132,7 +128,7 @@ def comparison(po, pos, name1,name2, channel=255,div=2, Fs=5000):
 loadir='./fig4_files/'
 loadir2='./fig6_files/'
 channel=131
-fig = py.figure(figsize=(20,10), dpi=220)
+fig = py.figure(figsize=(23,10), dpi=220)
 gs = fig.add_gridspec(10, 20)
 # exp_design(('A',1.07), (0,6,0,8), 'th_space.png')
 # correlation_map(('B',1.08), (7,16,0,10), 'cor_score_th18.npy')
@@ -141,13 +137,20 @@ gs = fig.add_gridspec(10, 20)
 # ex_lfp(('C',1.05), (12,16,0,10))
 
 rat='21'
-lfp_profile(('A',1.01), (0,10,0,4), './mats/an_multi_sov21.mat','Control',channel=channel)
-lfp_profile(('B',1.01), (0,10,5,9), './mats/an_multi_sov21lid.mat','Lignocaine',channel=channel)
-ex_lfp2(('C',1.05), (0,7,11,20), './mats/an_multi_sov21.mat',
+# lfp_profile(('A',1.01), (0,10,0,4), './mats/an_multi_sov21.mat','Control',channel=channel)
+# lfp_profile(('B',1.01), (0,10,5,9), './mats/an_multi_sov21lid.mat','Lignocaine',channel=channel)
+exp_design(('C',1.03), (0,10,7,10), 'fig6_hist.png')
+# exp_design(('B',1.07), (12,20,0,6), 'hist.png')
+# ex_lfp(('D',1.05), (0,9,14,20), 'rat18_EP.npy')
+lfp_profile(('A',1.03), (0,10,0,3), './mats/an_multi_sov21.mat', 'control')
+lfp_profile(('B',1.03), (0,10,3,6), './mats/an_multi_sov21lid.mat', 'lignocaine')
+
+ex_lfp2(('D',1.05), (0,7,11,20), './mats/an_multi_sov21.mat',
         './mats/an_multi_sov21lid.mat', channel=channel)
-comparison(('D',1.05), (8,10,11,20), './mats/an_multi_sov21.mat',
+
+comparison(('E',1.05), (8,10,11,20), './mats/an_multi_sov21.mat',
            './mats/an_multi_sov21lid.mat', channel=channel)
 # py.savefig('fig5_sov'+rat+'ch_'+str(channel))
-py.savefig('fig6_new_131')
+py.savefig('fig6_new')
 py.close()
  

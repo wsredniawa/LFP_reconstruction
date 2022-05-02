@@ -84,13 +84,13 @@ def pots_profile(po, pos, part1, part2, title='', vmax=1, typ='th', rec_color='d
         py.plot([2.3-s,2.325-s], [-2,-2], color='k')
         py.plot([2.3-s,2.3-s], [-2,-1.9], color='k')
         py.text(2.3-s,-2.15, '10 ms',fontsize=10)
-        py.text(2.3-s,-1.89, '10 mV',fontsize=10)
+        py.text(2.3-s,-1.89, '2 mV',fontsize=10)
     if po[0]=='C3':
         s=-1.45
         py.plot([2.3-s,2.35-s], [-7.8,-7.8], color='k')
         py.plot([2.3-s,2.3-s], [-7.8,-7.7], color='k')
         py.text(2.3-s,-7.95, '10 ms',fontsize=10)
-        py.text(2.3-s,-7.69, '1 mV',fontsize=10)
+        py.text(2.3-s,-7.69, '0.1 mV',fontsize=10)
     py.legend(ncol=2, frameon = False, fontsize = 10, loc=3)     
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -119,5 +119,5 @@ pots_profile(('C3',1.04), (16,26,18,26),'th', '_th', title='Estimated from thala
 # exp_design(('F',1), (12,20,14,20), 'pipline.png')
 # py.tight_layout()
 py.savefig('fig3_new')
-py.close()
+# py.close()
  

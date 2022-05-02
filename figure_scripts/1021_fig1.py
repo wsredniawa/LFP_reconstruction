@@ -73,8 +73,6 @@ def cor_map_stat(po, pos, name=''):
     py.fill_between(time_scale, mn_th-std_th, mn_th+std_th, alpha=.3, color='blue')
     py.axvspan(-5, -2, alpha=.3, color='grey')
     py.axvspan(-4, -1, alpha=.3, color='grey')
-    # py.arrow(-5,0, 2.5,0, width=.1, color='black')
-    # py.arrow(-4,-.2, 2.5,0, width=.1, color='black')
     py.scatter([-5,-4], [0,-.15],color='black')
     py.plot([-5,-2],[0,0], color='black')
     py.plot([-4,-1],[-.15,-.15], color='black')
@@ -96,13 +94,13 @@ def ex_lfp_NP(po, pos, name):
     loc_time = np.linspace(-5,25,pots.shape[1])
     py.plot(loc_time, pots[ch_crtx]-pots[ch_crtx,:25].mean(), color='navy')
     ax.tick_params(axis='y', labelcolor='navy')
-    ax.set_ylim(-5,5)
+    ax.set_ylim(-2.5,2.5),ax.set_ylabel('Amplitude (mV)')
     ax2 = ax.twinx()
     ax2.plot(loc_time, pots[ch_th]-pots[ch_th,:25].mean(), color='orange')
-    ax2.set_ylim(-.5,.5)
+    ax2.set_ylim(-.25,.25)
     ax2.tick_params(axis='y', labelcolor='orange')
-    ax2.text(3.4,-.22, '*')
-    ax2.text(8.4,-.15, '**')
+    ax.text(3.2,-1.3, '*',fontsize=25)
+    ax.text(8.4,-1.8, '**',fontsize=25)
     ax.set_xlabel('Time (ms)')
     # ax.set_xlim(-10,50)
     py.axvline(0, ls='--', lw = 2, color='grey')
@@ -111,22 +109,6 @@ def ex_lfp_NP(po, pos, name):
     pot = mpatches.Patch(color='navy', label='Cortical EP')
     py.legend(handles=[est, pot], ncol=1,loc=1, frameon = False, fontsize = 10) 
 
-
-def correlation_map(po, pos, name):
-    global cor_score
-    ax = fig.add_subplot(gs[pos[0]:pos[1], pos[2]:pos[3]])
-    set_axis(ax, 0, po[1], letter= po[0])
-    # cor_score = np.load(loadir+name)
-    cor_score = scipy.io.loadmat('./mats/sov19.mat')['cor']
-    py.title('Rolling correlation for all electrodes')
-    py.imshow(cor_score[::-1], vmax=1, vmin=-1, cmap='PiYG',
-              aspect='auto', extent=[-5,25,cor_score.shape[0],1])
-    py.ylabel('channels sorted in ML axis')
-    py.colorbar(orientation='horizontal',pad=.1) 
-    py.xlabel('Time (ms)')
-    py.axhline(50, ls='--', lw = 3, color='black')
-    # py.axhline(215, ls='--', lw = 4, color='red')
-    ax.spines['right'].set_visible(False), ax.spines['top'].set_visible(False)
 
 def lfp_profile(po, pos, name, title, vmax=200):
     ax = fig.add_subplot(gs[pos[0]:pos[1], pos[2]:pos[3]])
@@ -137,26 +119,22 @@ def lfp_profile(po, pos, name, title, vmax=200):
     # wave = np.delete(wave_pre, 287, axis=0)
     # ele_pos = np.delete(ele_pos_pre,287, axis=1)
     py.title("Profile of averaged "+title+"EPs (Neuropixel)")
-    # lfp = wave[::-1]
-    # x,y = np.meshgrid(np.linspace(-5,25,lfp.shape[1]),
-                      # np.linspace(384,0,lfp.shape[0]))
-    # py.imshow(lfp[::-1], aspect='auto', vmin=-30,vmax=30, extent=[-5,25, 384,0], cmap="PRGn")
-    
-    # py.contourf(x,y,lfp[::-1], cmap="PRGn", levels=np.linspace(-vmax,vmax,401))
     time= np.linspace(-5,25,lfp.shape[1])
     ch_th,ch_crtx=124,320
     for i in range(lfp.shape[0]-1,0,-1):
         print(i)
-        py.plot(time, lfp[i]/10+ele_pos[i,2]-11, color='black', linewidth=.5)
+        py.plot(time, lfp[i]/2+ele_pos[i,2]-11, color='black', linewidth=.5)
         if i==ch_th:
-            py.plot(time, lfp[i]/10+ele_pos[i,2]-11, color='orange', linewidth=3)   
+            py.plot(time, lfp[i]/2+ele_pos[i,2]-11, color='orange', linewidth=3)   
         if i==ch_crtx:
-            py.plot(time, lfp[i]/10+ele_pos[i,2]-11, color='navy', linewidth=3)
+            py.plot(time, lfp[i]/2+ele_pos[i,2]-11, color='navy', linewidth=3)
     # py.yticks([0,100,200,300,400,500,600,700],[7,6,5,4,3,2,1,0])
     # cont_lfp1 = abs(lfp[::-1])>20
     py.axvline(0, ls='--', color='grey')
     py.ylabel('Electrode number')
-    # py.xlim(-10,50)
+    py.ylim(-7.5,.5)
+    py.plot([25.8,25.8],[0,-0.5], 'k',lw=3)
+    py.text(26.4,-0.2, '1 mV', size=15)
     # lfp[:,:62]=0
     # py.colorbar(orientation='horizontal', pad=.1, ticks=[-vmax,0,vmax])
     # py.contour(x,y,cont_lfp1*abs(lfp[::-1]), levels=[0,30], cmap="Oranges", linestyles='dashed')

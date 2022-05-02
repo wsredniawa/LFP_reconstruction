@@ -40,8 +40,10 @@ def st_profile(po, pos, name, csd, title='', key='a', vmax=1000):
     # py.contourf(x,y,pots, cmap=cmap, levels=np.linspace(-vmax,vmax,201))
     py.imshow(pots, cmap=cmap, vmin=-vmax, vmax=vmax, extent=[-5,25,7.4,0], 
               origin='lower', aspect='auto')
-    cbar = py.colorbar()
-    cbar.formatter.set_powerlimits((0, 0))
+    cbar = py.colorbar(aspect=50, pad=0)
+    cbar.formatter.set_scientific(False)
+    cbar.ax.tick_params(size=0)
+    
     py.xlabel('Time (ms)', labelpad=-1.5), 
     if po[0]=='A': 
         py.ylabel('Channel depth (mm)')
@@ -49,14 +51,15 @@ def st_profile(po, pos, name, csd, title='', key='a', vmax=1000):
     if 'LFP' in title:
         cont_lfp1 = abs(pots)>vmax
         pots[:,:80]=0
-        py.contour(x,y,cont_lfp1*abs(pots), levels=np.linspace(-2,5,10), 
+        py.contour(x,y,cont_lfp1*abs(pots), levels=np.linspace(-1,2.5,10), 
                    cmap="Greys_r", linestyles='dashed', linewidth=.2)
     if 'CSD' in title:
-        cont_lfp1 = abs(pots)>vmax*1.5
+        cont_lfp1 = abs(pots)>vmax
         pots[:,:80]=0
-        py.contour(x,y,cont_lfp1*abs(pots), levels=np.linspace(-400,400,20), 
+        py.contour(x,y,cont_lfp1*abs(pots), levels=np.linspace(-200,200,20), 
                    cmap="Greys_r", linestyles='dashed', linewidth=.1)
         py.plot([-5,-5,25.2,25.2,-5], [2.5,0,0,2.5,2.5], color='grey', lw=6)
+        py.xlim(-5,25)
     #     pots[150:]=0
     #     cont_lfp2 = abs(pots)>3
     #     py.contour(x,y,cont_lfp2*abs(pots), levels=[0,1], cmap="Oranges", linestyles='dashed')
@@ -69,14 +72,14 @@ fig = py.figure(figsize=(20,10))
 gs = fig.add_gridspec(8,17)
 # exp_design(('A',1.05), (0,10,1,6), 'hist_mtrx.png')
 st_profile(('A',1.05), (0,8,0,5), 'an_sov19.mat', csd = 'pots', 
-           title='LFP', vmax=1)
+           title='LFP', vmax=.5)
 st_profile(('B',1.05), (0,8,6,11), 'an_sov19.mat', csd='csd',
            title='CSD reconstruction from the cortex', vmax=20)
 st_profile(('C',1.05), (0,8,12,17), 'an_sov19.mat', csd = 'pot_VC', 
-           title='Volume conducted LFP from the cortex',vmax=1)
+           title='Volume conducted LFP from the cortex',vmax=.5)
 # lfp_profile(('E',1.1), (12,20,8,13), 'sov6events_t.npy', 'thalamic', .1)
 # exp_design(('F',1), (12,20,14,20), 'pipline.png')
 # py.tight_layout()
 py.savefig('fig2_new')
-py.close()
+# py.close()
  

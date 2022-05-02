@@ -45,7 +45,7 @@ slownik = {'sov19.mat':(260, 123),
            'sov21lid.mat':(264, 129)}
 #%%
 Fs = 10000
-file = 'sov21lid.mat'
+file = 'sov21.mat'
 # file = 'sov21.mat'
 above_cortex=slownik[file][0]
 th_channel=slownik[file][1]
@@ -56,9 +56,9 @@ crtx, th, ele_pos = mat_file['crtx'], mat_file['th'], mat_file['ele_pos'][:,::-1
 pots=np.concatenate((th,crtx))
 pots_trial = mat_file['all_trials']
 for i in range(pots.shape[0]): 
-    pots[i] = (pots[i] - pots[i,:40].mean())*1e3/512
+    pots[i] = (pots[i] - pots[i,:40].mean())
     for trial in range(20):
-        pots_trial[i,trial] = (pots_trial[i,trial] - pots_trial[i,trial,:40].mean())*1e3/512
+        pots_trial[i,trial] = (pots_trial[i,trial] - pots_trial[i,trial,:40].mean())
 
 num_points = 200
 lines = 25

@@ -199,8 +199,8 @@ py.imshow(k_th.values('CSD'), cmap='bwr', extent=[-5,25, ele_pos.shape[1], 0], v
 # py.figure()
 # py.imshow(cor[eps], vmin=-1, vmax=1, extent=[-5,25,ele_pos.shape[1],1],aspect='auto', cmap='PiYG')
 #%%
-k_B=oKCSD3D(ele_pos.T, pots, own_src=est_plane, own_est=est_plane, src_type='gauss', R_init=.4, lambd=1e-5)
-k_C=oKCSD3D(ele_pos[:,th_start:].T, pots[th_start:], own_src=est_plane, own_est=est_plane, src_type='gauss', R_init=.4, lambd=1e-5)
+k_B=oKCSD3D(ele_pos.T, pots, own_src=est_xyz[:,indst], own_est=est_plane, src_type='gauss', R_init=.4, lambd=1e-5)
+k_C=oKCSD3D(ele_pos[:,th_start:].T, pots[th_start:], own_src=est_xyz[:,indst], own_est=est_plane, src_type='gauss', R_init=.4, lambd=1e-5)
 k_E=oKCSD3D(ele_pos.T, pots, own_src=est_xyz, own_est=est_plane, src_type='gauss', R_init=.4, lambd=1e-5)
 k_F=oKCSD3D(ele_pos[:,th_start:].T, pots[th_start:], own_src=est_xyz, own_est=est_plane, src_type='gauss', R_init=.4, lambd=1e-5)
 #%%

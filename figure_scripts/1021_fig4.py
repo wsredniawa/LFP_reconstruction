@@ -28,26 +28,6 @@ def exp_design(po, pos, name):
     ax.spines['right'].set_visible(False)
     py.xticks([]), py.yticks([])
 
-def correlation_map(po, pos, name):
-    ax = fig.add_subplot(gs[pos[0]:pos[1], pos[2]:pos[3]])
-    set_axis(ax, 0, po[1], letter= po[0])
-    cor_score = np.load(loadir2+name)
-    print(cor_score.shape)
-    ele_pos = np.load(loadir+'ele_pos18.npy')
-    ele_pos_sort = np.argsort(ele_pos[:,2])
-    py.title('Rolling correlation score map for all electrodes')
-    py.imshow(cor_score[list(ele_pos_sort)], vmax=1, vmin=-1, cmap='PiYG',
-              aspect='auto', extent=[-5,20,cor_score.shape[0],1])
-    py.ylabel('channels sorted in ML axis')
-    py.colorbar(orientation='horizontal', pad=.13,aspect=50)  
-    py.xlabel('Time (ms)', labelpad=-1.5)
-    py.axhline(103, lw = 6, color='blue')
-    py.axhline(105, lw = 4, color='orange')
-    py.axhline(145, ls='--', lw = 4, color='red')
-    py.axhline(215, ls='--', lw = 4, color='red')
-    ax.spines['right'].set_visible(False), ax.spines['top'].set_visible(False)
-    return list(ele_pos_sort)
-
 def cor_map_stat(po, pos, typ='cs_th',typ2='cs_crtx', name='', title=''):
     global df, th
     tps, lp = list(np.arange(28)), 1
@@ -131,17 +111,19 @@ def cor_map_stat(po, pos, typ='cs_th',typ2='cs_crtx', name='', title=''):
     time_scale=np.linspace(-5,24,30)
     if 'Cortical' in title:
         mn_crtx, std_crtx = crtx_crtx.mean(axis=0)[:,0],crtx_crtx.std(axis=0)[:,0]/(n_rats**(.5))
-        py.plot(time_scale, mn_crtx, color='navy', lw=2, label='Cortical sources')
+        py.plot(time_scale, mn_crtx,'-o', color='navy', lw=2, label='Cortical sources')
         py.fill_between(time_scale, mn_crtx-std_crtx, mn_crtx+std_crtx, alpha=.3, color='blue')
         mn_th, std_th = crtx_th.mean(axis=0)[:,0], crtx_th.std(axis=0)[:,0]/(n_rats**(.5))
-        py.plot(time_scale, mn_th, color='brown', lw=2,label='Thalamic sources')
+        py.plot(time_scale, mn_th,'-o', color='brown', lw=2,label='Thalamic sources')
         py.fill_between(time_scale, mn_th-std_th, mn_th+std_th, alpha=.3, color='brown')
     if 'Thalamic' in title:
         mn_crtx, std_crtx = th_crtx.mean(axis=0)[:,0],th_crtx.std(axis=0)[:,0]/(n_rats**(.5))
-        py.plot(time_scale, mn_crtx, color='navy', lw=2, label='Cortical sources')
+        py.plot(time_scale, mn_crtx,'-o', color='navy', lw=2, label='Cortical sources')
         py.fill_between(time_scale, mn_crtx-std_crtx, mn_crtx+std_crtx, alpha=.3, color='blue')
         mn_th, std_th = th_th.mean(axis=0)[:,0], th_th.std(axis=0)[:,0]/(n_rats**(.5))
-        py.plot(time_scale, mn_th, color='brown', lw=2,label='Thalamic sources')
+        py.plot(time_scale, mn_th,'-o', color='brown', lw=2,label='Thalamic sources')
+        print(mn_th[:25].mean(),mn_th[:25].std(),mn_th[:25].max(), mn_th[:25].min())
+        print(mn_crtx[:25].max(), np.argmax(mn_crtx[:25]))
         py.fill_between(time_scale, mn_th-std_th, mn_th+std_th, alpha=.3, color='brown')
     sov_labels = [16,17,18,1,2,3,6,9,19,20,21]
     # for i in range(0,11,1): 
@@ -167,27 +149,30 @@ def ex_lfp(po, pos, div=1, div2=1):
     loc_time = np.linspace(-5,25, pots.shape[1])
     pots1 = pots[ch_crtx]-pots[ch_crtx,:25].mean()
     rec_cortex = recon_crtx[ch_crtx]-recon_crtx[ch_crtx,:25].mean()
-    py.plot(loc_time, pots1, color='navy')
-    py.plot(loc_time, rec_cortex, color='skyblue', ls='--')
+    py.plot(loc_time, pots1, color='navy',label='Cortical EP',lw=3)
+    py.plot(loc_time, rec_cortex, color='skyblue', ls='--',label='Cortical recon.',lw=3)
     ax.tick_params(axis='y', labelcolor='navy')
+    py.legend(loc=4)
     ax2 = ax.twinx()
     color = 'orange'
     pots2 = pots[ch_th]-pots[ch_th,:25].mean()
-    ax2.plot(loc_time, pots2, color=color)
-    ax2.plot(loc_time, recon_th[ch_th]-recon_th[ch_th,:25].mean(), color='red', ls='--')
-    ax2.set_ylim(-.5,.5), ax.set_ylim(-5,5)
+    ax2.plot(loc_time, pots2, color=color,label='Thalamic EP',lw=3)
+    ax2.plot(loc_time, recon_th[ch_th]-recon_th[ch_th,:25].mean(), color='red', 
+             ls='--',label='Thalamic recon.',lw=3)
+    ax2.set_ylim(-.25,.25), ax.set_ylim(-2.5,2.5)
     ax2.tick_params(axis='y', labelcolor='orange')
     # ax2.text(3.4,-.25, '*')
     # ax2.text(9.2,-.5, '**')
     ax.set_xlabel('Time (ms)'),ax.set_ylabel('Potential (mV)')
-    ax2.set_xlim(-5,25)
+    ax2.set_xlim(-5,22)
     py.axvline(0, ls='--', lw = 2, color='grey')
     # py.axvline(10, ls='--', lw = 2, color='purple')
-    th_pot = mpatches.Patch(color=color, label='Thalamic EP')
-    crtx_pot = mpatches.Patch(color='navy', label='Cortical EP')
-    th_recon = mpatches.Patch(color='red', label='Thalamic recon.')
-    crtx_recon = mpatches.Patch(color='skyblue', label='Cortical recon.')
-    py.legend(handles=[th_pot, crtx_pot, th_recon, crtx_recon], ncol=1,loc=4, frameon = False, fontsize = 10)
+    ax2.legend(loc=1)
+    # th_pot = mpatches.Patch(color=color, label='Thalamic EP')
+    # crtx_pot = mpatches.Patch(color='navy', label='Cortical EP')
+    # th_recon = mpatches.Patch(color='red', label='Thalamic recon.')
+    # crtx_recon = mpatches.Patch(color='skyblue', label='Cortical recon.')
+    # py.legend(handles=[th_pot, crtx_pot, th_recon, crtx_recon], ncol=1,loc=4, frameon = False, fontsize = 10)
 
 loadir='./fig4_files/'
 loadir2='./fig6_files/'
@@ -206,5 +191,5 @@ ex_lfp(('A',1.05), (0,4,0,10))
 # ex_lfp2(('F',1.05), (10,16,13,21), './mats/an_sov21.mat','./mats/an_sov21lid.mat', channel=channel)
 # py.savefig('fig5_sov'+rat+'ch_'+str(channel))
 py.savefig('fig4_new')
-py.close()
+# py.close()
  

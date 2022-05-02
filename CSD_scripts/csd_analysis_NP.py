@@ -45,7 +45,7 @@ slownik = {'sov19.mat':(260, 123),
            'sov21lid.mat':(264, 129)}
 #%%
 Fs = 10000
-file = 'sov21lid.mat'
+file = 'sov19.mat'
 above_cortex=slownik[file][0]
 th_channel=slownik[file][1]
 mat_file = scipy.io.loadmat('./mats/'+file)
@@ -53,7 +53,7 @@ est_env = np.load('est_env.npy')
 
 crtx, th, ele_pos = mat_file['crtx'], mat_file['th'], mat_file['ele_pos'][:,::-1]
 pots=np.concatenate((th,crtx))
-for i in range(pots.shape[0]): pots[i] = (pots[i] - pots[i,:40].mean())*1e3/512
+for i in range(pots.shape[0]): pots[i] = (pots[i] - pots[i,:40].mean())#*1e3/512
 
 num_points = 200
 lines = 25
@@ -151,5 +151,5 @@ if '19' in file:
 else:
     scipy.io.savemat('./mats/an_'+file,
                      dict(cs_crtx=cor_score_crtx, cs_th=cor_score_th,
-                     pots_est_crtx=pots_est_crtx, pots_est_th= pots_est_th, pots=pots,
-                     csd=csd))
+                          pots_est_crtx=pots_est_crtx, pots_est_th= pots_est_th, pots=pots,
+                          csd=csd))
